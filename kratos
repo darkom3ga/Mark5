@@ -1,0 +1,594 @@
+#!/bin/bash
+raspi_ip="192.168.1.12"
+jetson_ip="192.168.1.10"
+
+function show_menu() {
+    echo "Select an option to run a command: ( Cameras only on Jetson )"
+    echo "1) Run Full ( Raspi ) + Camera"
+    echo "2) Run Full ( Jetson ) + Camera"
+    echo "3) Run Control Only : Raspi "
+    echo "4) Run Control Only : Jetson "    
+    echo "5) Run Camera Only " 
+    echo "6) irc2025 manual control"
+    echo "7) irc2025 arduino serial"  
+    echo "8) irc2024 manual control"
+    echo "9) irc2024 arduino serial"
+    echo "10) Build catkin & source Bashrc "
+    echo "11) Exit"
+}
+
+PING_SUCCESS=0 
+PING_SUCCESS_2=0
+
+function handle_choice() {
+    case $1 in
+        1)
+            TITLE="Terminator_om3ga_1"  
+            WINDOW_IDS=$(xdotool search --name "$TITLE")
+            for WINDOW_ID in $WINDOW_IDS; do
+                xdotool windowclose $WINDOW_ID
+            done
+            echo "$TITLE"
+
+            terminator --title "$TITLE" &
+            sleep 2
+            WINDOW_ID=$(xdotool search --name "$TITLE" | head -n 1)
+            xdotool windowfocus --sync $WINDOW_ID
+            sleep 1
+            for i in {1..5}
+            do
+                if [ -z "$WINDOW_ID" ]; then
+                    echo "Window not found. Exiting."
+                    exit 1
+                fi
+                xdotool windowactivate $WINDOW_ID
+                xdotool key "Alt+Up"
+                xdotool type "ping $raspi_ip -c 1 | tee ~/terminator_output.txt"
+                xdotool key Return
+                sleep 1
+                OUTPUT=$(cat ~/terminator_output.txt)
+                if echo "$OUTPUT" | grep -q "1 packets transmitted, 1 received"; then
+                    echo "Ping done"
+                    PING_SUCCESS=1
+                    break
+                    
+                else
+                    echo "Ping failed"
+                    sleep 1
+                fi
+            done
+            xdotool windowactivate $WINDOW_ID
+            if [ "$PING_SUCCESS" -eq 1 ]; then
+                xdotool key Ctrl+Shift+E
+                sleep 0.5
+                xdotool type "sshpass -p "kratos123" ssh kratos@$raspi_ip"
+                xdotool key Return
+                sleep 1
+                file=./kratos
+                if [ ! -e "$file" ]; then
+                    xdotool key Ctrl+Shift+o
+                    xdotool key Return
+                    sleep 0.5 
+                    xdotool windowactivate $WINDOW_ID
+                    xdotool type "sshpass -p 'kratos123' scp ~/kratos kratos@$raspi_ip:~/ "
+                    xdotool key Return 
+                    sleep 2
+                    xdotool key Ctrl+Shift+W
+                    xdotool key Return 
+                    sleep 0.5
+                fi
+                xdotool windowactivate $WINDOW_ID
+                xdotool type 'cd ~/ ; ./kratos'
+                xdotool key Return  
+                sleep 0.5
+                xdotool windowactivate $WINDOW_ID
+                xdotool type '8' # change this to 10 if irc 2024 manual control is used
+                xdotool key Return 
+                WINDOW_ID=$(xdotool search --name "$TITLE" | head -n 1)
+                xdotool windowactivate $WINDOW_ID
+                xdotool key Ctrl+Shift+o
+                sleep 0.5
+                xdotool type "sshpass -p "kratos123" ssh kratos@$raspi_ip"
+                xdotool key Return
+                xdotool type 'rostopic echo joy1'
+                xdotool key Return
+                WINDOW_ID=$(xdotool search --name "$TITLE" | head -n 1)
+                xdotool windowactivate $WINDOW_ID
+                xdotool key Ctrl+Shift+o
+                sleep 0.5
+                xdotool type "ping $raspi_ip"
+                xdotool key Return
+                for i in {1..3}
+                do
+                     xdotool key "Alt+Up"   
+                    
+                done
+                for i in {1..8}
+                do
+                     xdotool key "Ctrl+Shift+Up"       
+                done
+                xdotool key "Alt+Down"
+                for i in {1..8}
+                do
+                     xdotool key "Ctrl+Shift+Down"       
+                done  
+                WINDOW_ID=$(xdotool search --name "$TITLE" | head -n 1)
+                xdotool windowactivate $WINDOW_ID
+                xdotool key "Alt+Left"  
+                xdotool windowactivate $WINDOW_ID
+                xdotool type 'cd ~/ ; ./kratos'
+                xdotool key Return  
+                xdotool windowactivate $WINDOW_ID
+                xdotool type '8' # change this to 10 if irc 2024 manual control is used
+                xdotool key Return
+                xdotool key Ctrl+Shift+o
+                sleep 0.5
+
+                for i in {1..5}
+                do
+                    xdotool type "ping $jetson_ip -c 1 | tee ~/jetson_output.txt"
+                    xdotool key Return
+                    sleep 2
+                    OUTPUT2=$(cat ~/jetson_output.txt)
+                    if echo "$OUTPUT2" | grep -q "1 packets transmitted, 1 received"; then
+                        echo "Ping done"
+                        PING_SUCCESS_2=1
+                        break
+                    else
+                        echo "Ping failed"
+                        sleep 2
+                    fi
+                done
+                if [ "$PING_SUCCESS_2" -eq 1 ]; then
+                    xdotool windowactivate $WINDOW_ID
+                    xdotool type 'cd ~/hevc ; python3 hevc_fixed.py'
+                    xdotool key Return
+                fi
+                xdotool windowactivate $WINDOW_ID
+                xdotool key Ctrl+Shift+o
+                sleep 0.5
+                xdotool type "ping $jetson_ip"
+                xdotool key Return 
+                for i in {1..3}
+                do
+                     xdotool key "Alt+Up"       
+                done
+                for i in {1..8}
+                do
+                     xdotool key "Ctrl+Shift+Up"       
+                done
+                xdotool key "Alt+Down"
+                for i in {1..8}
+                do
+                     xdotool key "Ctrl+Shift+Down"       
+                done     
+                xdotool key "Alt+Left" 
+
+            fi
+            ;;
+        2)
+            TITLE="Terminator_om3ga_2"  
+            WINDOW_IDS=$(xdotool search --name "$TITLE")
+            for WINDOW_ID in $WINDOW_IDS; do
+                xdotool windowclose $WINDOW_ID
+            done
+            echo "$TITLE"
+
+            terminator --title "$TITLE" &
+            sleep 2
+            WINDOW_ID=$(xdotool search --name "$TITLE" | head -n 1)
+            xdotool windowfocus --sync $WINDOW_ID
+            sleep 1
+            for i in {1..5}
+            do
+                if [ -z "$WINDOW_ID" ]; then
+                    echo "Window not found. Exiting."
+                    exit 1
+                fi
+                xdotool windowactivate $WINDOW_ID
+                xdotool key "Alt+Up"
+                xdotool type "ping $jetson_ip -c 1 | tee ~/terminator_output.txt"
+                xdotool key Return
+                sleep 1
+                OUTPUT=$(cat ~/terminator_output.txt)
+                if echo "$OUTPUT" | grep -q "1 packets transmitted, 1 received"; then
+                    echo "Ping done"
+                    PING_SUCCESS=1
+                    break
+                    
+                else
+                    echo "Ping failed"
+                    sleep 1
+                fi
+            done
+            xdotool windowactivate $WINDOW_ID
+            if [ "$PING_SUCCESS" -eq 1 ]; then
+                xdotool key Ctrl+Shift+E
+                sleep 0.5
+                xdotool type "sshpass -p "kratos123" ssh kratos@$jetson_ip"
+                xdotool key Return
+                sleep 1
+                file=./kratos
+                if [ ! -e "$file" ]; then
+                    xdotool key Ctrl+Shift+o
+                    xdotool key Return
+                    sleep 0.5 
+                    xdotool windowactivate $WINDOW_ID
+                    xdotool type "sshpass -p 'kratos123' scp ~/kratos.sh kratos@$jetson_ip:~/ "
+                    xdotool key Return 
+                    sleep 2
+                    xdotool key Ctrl+Shift+W
+                    xdotool key Return 
+                    sleep 0.5
+                fi
+                xdotool windowactivate $WINDOW_ID
+                xdotool type 'cd ~/ ; ./kratos'
+                xdotool key Return  
+                sleep 0.5
+                xdotool windowactivate $WINDOW_ID
+                xdotool type '8' # change this to 10 if irc 2024 manual control is used
+                xdotool key Return 
+                WINDOW_ID=$(xdotool search --name "$TITLE" | head -n 1)
+                xdotool windowactivate $WINDOW_ID
+                xdotool key Ctrl+Shift+o
+                sleep 0.5
+                xdotool type "sshpass -p "kratos123" ssh kratos@$jetson_ip"
+                xdotool key Return
+                xdotool type 'rostopic echo joy1'
+                xdotool key Return
+                WINDOW_ID=$(xdotool search --name "$TITLE" | head -n 1)
+                xdotool windowactivate $WINDOW_ID
+                xdotool key Ctrl+Shift+o
+                sleep 0.5
+                xdotool type "ping $jetson_ip"
+                xdotool key Return
+                for i in {1..3}
+                do
+                     xdotool key "Alt+Up"   
+                    
+                done
+                for i in {1..8}
+                do
+                     xdotool key "Ctrl+Shift+Up"       
+                done
+                xdotool key "Alt+Down"
+                for i in {1..8}
+                do
+                     xdotool key "Ctrl+Shift+Down"       
+                done  
+                WINDOW_ID=$(xdotool search --name "$TITLE" | head -n 1)
+                xdotool windowactivate $WINDOW_ID
+                xdotool key "Alt+Left"  
+                xdotool windowactivate $WINDOW_ID
+                xdotool type 'cd ~/ ; ./kratos'
+                xdotool key Return  
+                xdotool windowactivate $WINDOW_ID
+                xdotool type '8' # change this to 10 if irc 2024 manual control is used
+                xdotool key Return
+                xdotool key Ctrl+Shift+o
+                sleep 0.5
+
+                for i in {1..5}
+                do
+                    xdotool type "ping $jetson_ip -c 1 | tee ~/jetson_output.txt"
+                    xdotool key Return
+                    sleep 2
+                    OUTPUT2=$(cat ~/jetson_output.txt)
+                    if echo "$OUTPUT2" | grep -q "1 packets transmitted, 1 received"; then
+                        echo "Ping done"
+                        PING_SUCCESS_2=1
+                        break
+                    else
+                        echo "Ping failed"
+                        sleep 2
+                    fi
+                done
+                if [ "$PING_SUCCESS_2" -eq 1 ]; then
+                    xdotool windowactivate $WINDOW_ID
+                    xdotool type 'cd ~/hevc ; python3 hevc_fixed.py'
+                    xdotool key Return
+                fi
+                xdotool windowactivate $WINDOW_ID
+                xdotool key Ctrl+Shift+o
+                sleep 0.5
+                xdotool type "ping $jetson_ip"
+                xdotool key Return 
+                for i in {1..3}
+                do
+                     xdotool key "Alt+Up"       
+                done
+                for i in {1..8}
+                do
+                     xdotool key "Ctrl+Shift+Up"       
+                done
+                xdotool key "Alt+Down"
+                for i in {1..8}
+                do
+                     xdotool key "Ctrl+Shift+Down"       
+                done     
+                xdotool key "Alt+Left" 
+
+            fi
+            ;;
+        3)
+            TITLE="Terminator_om3ga_3"  
+            WINDOW_IDS=$(xdotool search --name "$TITLE")
+            for WINDOW_ID in $WINDOW_IDS; do
+                xdotool windowclose $WINDOW_ID
+            done
+            echo "$TITLE"
+
+            terminator --title "$TITLE" &
+            sleep 2
+            WINDOW_ID=$(xdotool search --name "$TITLE" | head -n 1)
+            xdotool windowfocus --sync $WINDOW_ID
+            sleep 1
+            for i in {1..5}
+            do
+                if [ -z "$WINDOW_ID" ]; then
+                    echo "Window not found. Exiting."
+                    exit 1
+                fi
+                xdotool windowactivate $WINDOW_ID
+                xdotool key "Alt+Up"
+                xdotool type "ping $raspi_ip -c 1 | tee ~/terminator_output.txt"
+                xdotool key Return
+                sleep 1
+                OUTPUT=$(cat ~/terminator_output.txt)
+                if echo "$OUTPUT" | grep -q "1 packets transmitted, 1 received"; then
+                    echo "Ping done"
+                    PING_SUCCESS=1
+                    break
+                    
+                else
+                    echo "Ping failed"
+                    sleep 1
+                fi
+            done
+            xdotool windowactivate $WINDOW_ID
+            if [ "$PING_SUCCESS" -eq 1 ]; then
+                xdotool key Ctrl+Shift+E
+                sleep 0.5
+                xdotool type "sshpass -p "kratos123" ssh kratos@$raspi_ip"
+                xdotool key Return
+                sleep 3
+                file=./kratos
+                if [ ! -e "$file" ]; then
+                    xdotool key Ctrl+Shift+o
+                    xdotool key Return
+                    sleep 0.5 
+                    xdotool windowactivate $WINDOW_ID
+                    xdotool type "sshpass -p 'kratos123' scp ~/kratos kratos@$raspi_ip:~/ "
+                    xdotool key Return 
+                    sleep 2
+                    xdotool key Ctrl+Shift+W
+                    xdotool key Return 
+                    sleep 0.5
+                fi
+                xdotool windowactivate $WINDOW_ID
+                xdotool type 'cd ~/ ; ./kratos'
+                xdotool key Return  
+                sleep 1
+                xdotool windowactivate $WINDOW_ID
+                xdotool type '7' # change this to 10 if irc 2024 manual control is used
+                xdotool key Return 
+                sleep 1
+                WINDOW_ID=$(xdotool search --name "$TITLE" | head -n 1)
+                xdotool windowactivate $WINDOW_ID
+                xdotool key Ctrl+Shift+o
+                sleep 0.5
+                xdotool type "sshpass -p "kratos123" ssh kratos@$raspi_ip"
+                xdotool key Return
+                xdotool type 'rostopic echo joy1'
+                xdotool key Return
+                WINDOW_ID=$(xdotool search --name "$TITLE" | head -n 1)
+                xdotool windowactivate $WINDOW_ID
+                xdotool key "Alt+Left"  
+                xdotool windowactivate $WINDOW_ID
+                xdotool type 'cd ~/ ; ./kratos2'
+                xdotool key Return  
+                sleep 2
+                xdotool windowactivate $WINDOW_ID
+                xdotool type '8' # change this to 10 if irc 2024 manual control is used
+                xdotool key Return
+                xdotool key Ctrl+Shift+o
+                sleep 0.5
+                dotool key "Alt+Up" 
+                xdotool type "ping $raspi_ip"
+                xdotool key Return
+
+            fi
+            ;;
+        4)
+            TITLE="Terminator_om3ga_4"  
+            WINDOW_IDS=$(xdotool search --name "$TITLE")
+            for WINDOW_ID in $WINDOW_IDS; do
+                xdotool windowclose $WINDOW_ID
+            done
+            echo "$TITLE"
+
+            terminator --title "$TITLE" &
+            sleep 2
+            WINDOW_ID=$(xdotool search --name "$TITLE" | head -n 1)
+            xdotool windowfocus --sync $WINDOW_ID
+            sleep 1
+            for i in {1..5}
+            do
+                if [ -z "$WINDOW_ID" ]; then
+                    echo "Window not found. Exiting."
+                    exit 1
+                fi
+                xdotool windowactivate $WINDOW_ID
+                xdotool key "Alt+Up"
+                xdotool type "ping $jetson_ip -c 1 | tee ~/terminator_output.txt"
+                xdotool key Return
+                sleep 1
+                OUTPUT=$(cat ~/terminator_output.txt)
+                if echo "$OUTPUT" | grep -q "1 packets transmitted, 1 received"; then
+                    echo "Ping done"
+                    PING_SUCCESS=1
+                    break
+                    
+                else
+                    echo "Ping failed"
+                    sleep 1
+                fi
+            done
+            xdotool windowactivate $WINDOW_ID
+            if [ "$PING_SUCCESS" -eq 1 ]; then
+                xdotool key Ctrl+Shift+E
+                sleep 0.5
+                xdotool type "sshpass -p "kratos123" ssh kratos@$jetson_ip"
+                xdotool key Return
+                sleep 1
+                file=./kratos
+                if [ ! -e "$file" ]; then
+                    xdotool key Ctrl+Shift+o
+                    xdotool key Return
+                    sleep 0.5 
+                    xdotool windowactivate $WINDOW_ID
+                    xdotool type "sshpass -p 'kratos123' scp ~/kratos.sh kratos@$jetson_ip:~/ "
+                    xdotool key Return 
+                    sleep 2
+                    xdotool key Ctrl+Shift+W
+                    xdotool key Return 
+                    sleep 0.5
+                fi
+                xdotool windowactivate $WINDOW_ID
+                xdotool type 'cd ~/ ; ./kratos'
+                xdotool key Return  
+                sleep 0.5
+                xdotool windowactivate $WINDOW_ID
+                xdotool type '8' # change this to 10 if irc 2024 manual control is used
+                xdotool key Return 
+                WINDOW_ID=$(xdotool search --name "$TITLE" | head -n 1)
+                xdotool windowactivate $WINDOW_ID
+                xdotool key Ctrl+Shift+o
+                sleep 0.5
+                xdotool type "sshpass -p "kratos123" ssh kratos@$jetson_ip"
+                xdotool key Return
+                xdotool type 'rostopic echo joy1'
+                xdotool key Return
+                WINDOW_ID=$(xdotool search --name "$TITLE" | head -n 1)
+                xdotool windowactivate $WINDOW_ID
+                xdotool key "Alt+Left"  
+                xdotool windowactivate $WINDOW_ID
+                xdotool type 'cd ~/ ; ./kratos'
+                xdotool key Return  
+                xdotool windowactivate $WINDOW_ID
+                xdotool type '8' # change this to 10 if irc 2024 manual control is used
+                xdotool key Return
+                xdotool key Ctrl+Shift+o
+                sleep 0.5
+                dotool key "Alt+Up" 
+                xdotool type "ping $jetson_ip"
+                xdotool key Return
+
+            fi
+            ;;
+        5) TITLE="Terminator_om3ga_5"  
+            WINDOW_IDS=$(xdotool search --name "$TITLE")
+            for WINDOW_ID in $WINDOW_IDS; do
+                xdotool windowclose $WINDOW_ID
+            done
+            echo "$TITLE"
+
+            terminator --title "$TITLE" &
+            sleep 2
+            WINDOW_ID=$(xdotool search --name "$TITLE" | head -n 1)
+            xdotool windowfocus --sync $WINDOW_ID
+            sleep 1
+            for i in {1..5}
+            do
+                if [ -z "$WINDOW_ID" ]; then
+                    echo "Window not found. Exiting."
+                    exit 1
+                fi
+                xdotool windowactivate $WINDOW_ID
+                xdotool key "Alt+Up"
+                xdotool type "ping $jetson_ip -c 1 | tee ~/terminator_output.txt"
+                xdotool key Return
+                sleep 1
+                OUTPUT=$(cat ~/terminator_output.txt)
+                if echo "$OUTPUT" | grep -q "1 packets transmitted, 1 received"; then
+                    echo "Ping done"
+                    PING_SUCCESS=1
+                    break
+                    
+                else
+                    echo "Ping failed"
+                    sleep 1
+                fi
+            done
+            xdotool windowactivate $WINDOW_ID
+            if [ "$PING_SUCCESS" -eq 1 ]; then
+                sleep 0.5
+                xdotool windowactivate $WINDOW_ID
+                xdotool type 'cd ~/hevc ; python3 hevc_fixed.py'
+                sleep 0.5
+                xdotool key Return
+                xdotool windowactivate $WINDOW_ID
+                xdotool key Ctrl+Shift+o
+                sleep 0.5
+                xdotool type "ping $jetson_ip"
+                xdotool key Return 
+                for i in {1..15}
+                do
+                     xdotool key "Ctrl+Shift+Down"       
+                done
+
+            fi
+            ;;
+
+        6)
+            source ~/.bashrc
+            cd ~/catkin_ws
+            catkin_make
+            source devel/setup.bash
+            roslaunch irc2025 manual_control.launch
+            ;;
+        7)
+            source ~/.bashrc
+            cd ~/catkin_ws 
+            catkin_make
+            source devel/setup.bash
+            s
+            roslaunch irc2025 arduino_serial.launch
+            ;;
+        8)
+            source ~/.bashrc
+            cd ~/catkin_ws
+            catkin_make
+            source devel/setup.bash
+            roslaunch irc2024 manual_control.launch
+            ;;
+        9)
+            source ~/.bashrc
+            cd ~/catkin_ws
+            catkin_make
+            source devel/setup.bash
+            roslaunch irc2024 multiple-arduino-serial.launch
+            ;;
+        10)
+            source ~/.bashrc
+            cd ~/catkin_ws
+            catkin_make
+            source devel/setup.bash
+            ;;
+        11)  
+            echo "Exiting..."
+            exit 0
+            ;;
+        *)
+            echo "Invalid option. Please try again."
+            ;;
+    esac
+}
+
+while true; do
+    show_menu
+    read -p "Enter your choice [1-12]: " choice
+    handle_choice "$choice"
+    echo ""
+done
+
