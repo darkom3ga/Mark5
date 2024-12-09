@@ -32,12 +32,8 @@ This repo is for easy of run of the Kratos rover and make it more organised .
     ```sh
     sudo apt install terminator xdotool sshpass
     ```
-2. Git clone the repository and place the file named "kratos" in the ~/ directory ( home directory )
-</br>
-OR
-</br>
-    Just Run the code 
-    ```
+2. Git clone the repository and place the file named "kratos" in the ~/ directory ( home directory )</br>OR</br>Just Run the code 
+    ```sh
     wget -P ~/ https://raw.githubusercontent.com/darkom3ga/Mark5/refs/heads/main/kratos
     ```
 
