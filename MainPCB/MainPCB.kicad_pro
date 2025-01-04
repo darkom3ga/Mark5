@@ -179,7 +179,8 @@
       ],
       "track_widths": [
         0.0,
-        3.6
+        1.5,
+        2.0
       ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
@@ -230,7 +231,10 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [],
+    "erc_exclusions": [
+      "lib_symbol_issues|1371600|266700|d8dad2d4-9fe4-43a2-a81b-2da194e00ec3|00000000-0000-0000-0000-000000000000|||",
+      "pin_not_connected|546100|482600|252e3cf0-aec0-4f4d-a996-93b1375cc1b1|00000000-0000-0000-0000-000000000000|/6c7e9ebe-e3f5-4491-9751-34bc44a32859|/6c7e9ebe-e3f5-4491-9751-34bc44a32859|"
+    ],
     "meta": {
       "version": 0
     },
