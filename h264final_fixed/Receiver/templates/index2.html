@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Stream Receiver</title>
+    <link rel="preload" href="{{ url_for('static', filename='abel-regular-webfont.woff2') }}" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/style.css') }}">
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <div class="logo-container">
+        <img class="kratoslogo" src="{{ url_for('static', filename='kratoslogo.png') }}" alt="Kratos Logo">
+    </div>
+    <div class="control-panel">
+        <button onclick="allstream_start()">Start Stream</button>
+        
+        <div class="control-group">
+            <label for="resolution">Resolution:</label>
+            <select name="resolution" id="resolution">
+                <option value="720p">720p</option>
+                <option value="480p" selected>480p</option>
+                <option value="360p">360p</option>
+                <option value="240p">240p</option>
+                <option value="144p">144p</option>
+            </select>
+        </div>
+    
+        <div class="control-group">
+            <label for="bitrate">Bitrate (kbps):</label>
+            <input type="number" name="bitrate" id="bitrate" value="1000" min="500" max="8000">
+        </div>
+    
+        <div class="control-group">
+            <label for="fps">FPS:</label>
+            <input type="number" name="fps" id="fps" value="15" min="1" max="60">
+        </div>
+
+        <button onclick="allstream_stop()">Stop Stream</button>
+    </div>
+    
+    <div class="grid-container">
+        {% for camera_name in camera_ports %}
+        <div class="video-container">
+            <h2>{{ camera_name }}</h2>
+            <img class="video-feed" src="{{ url_for('video_feed', camera_name=camera_name) }}" alt="{{ camera_name }}">
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        function allstream_start(){
+            window.stop();
+            const resolution_all = document.getElementById(`resolution`).value;
+            const bitrate_all = document.getElementById(`bitrate`).value;
+            const fps_all = document.getElementById(`fps`).value;
+    
+            const formData_all = new FormData();
+            formData_all.append('resolution', resolution_all);
+            formData_all.append('bitrate', bitrate_all);
+            formData_all.append('fps', fps_all);
+
+            fetch(`/start_stream` , {
+                method: 'POST'
+            })
+            setTimeout(() => { 
+                fetch(`http://192.168.1.10:51000/start_stream`, {
+                    method: 'POST',
+                    body: formData_all
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();  
+                    } else {
+                        console.error('Failed to start stream:', response.statusText);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }, 2000);
+
+        }
+        function allstream_stop(){
+            window.stop();
+            console.log("Stopping the Stream From reciver Start : Fetch 1")
+            fetch(`http://192.168.1.10:51000/stop_stream` , {
+                method: 'POST'
+            })
+            console.log("Refreshing the Script : Fetch 2")
+            fetch(`/stop_stream` , {
+                method: 'POST'
+            })
+            console.log("Both fetch done")
+
+        }
+    </script>
+</body>
+</html>

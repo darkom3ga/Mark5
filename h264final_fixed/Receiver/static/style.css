@@ -1,0 +1,118 @@
+@font-face {
+    font-family: 'Abel-Regular'; 
+    src: url('/static/abel-regular-webfont.woff2') format('woff2'),  /* WOFF2 for modern browsers */
+        url('/static/abel-regular-webfont.woff') format('woff'),    /* WOFF as fallback */
+    }
+
+body{
+    background-color: rgb(8, 8, 8);
+    color : #fffd3b;
+    font-family: 'Abel-Regular', sans-serif;
+}
+.logo-container {
+    text-align: center; 
+}
+
+.kratoslogo {
+    max-width: 20%; 
+    height: auto;    
+}
+
+
+.control-panel {
+    gap:10px;
+    text-align: center;
+    margin-bottom:15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;    
+}
+
+
+.control-group label {
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.control-group select,
+.control-group input[type="number"] {
+    width: 100px; 
+    padding: 6px;
+    background-color: #ffd900;
+    border: 1px solid #ffd900;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 15px;
+}
+
+.control-panel button {
+    padding: 6px 10px;
+    gap:10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    height: 32px;
+    transition: background-color 0.3s;
+}
+
+.control-panel button:hover {
+    background-color: #0056b3;
+}
+
+.control-panel button:last-of-type {
+    background-color: #dc3545;
+}
+
+.control-panel button:last-of-type:hover {
+    background-color: #c82333;
+}
+.grid-container {
+    color : #ffffff;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px;
+    padding-left: 20px;
+    padding-right: 20px;
+    /* max-width: 1200px; */
+    margin: 0 auto;
+}
+
+.video-container {
+    text-align: center;
+    font-size: 11px;
+    color : #ffffff  ;
+    background-color: #4645451e;
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 500px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.video-container h2 {
+    margin: 0 0 10px 0;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+}
+
+.video-feed {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+    }
+}

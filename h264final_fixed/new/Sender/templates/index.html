@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Stream</title>
+</head>
+<body>
+    <h1>Start Video Stream</h1>
+    <form action="/start_stream" method="post">
+        <label for="resolution">Select Resolution:</label>
+        <select name="resolution" id="resolution">
+            <option value="720p">720p</option>
+            <option value="480p" selected>480p</option>
+            <option value="360p">360p</option>
+            <option value="360p">240p</option>
+            <option value="144p">144p</option>  
+        </select>
+        <label for="fps">Frames per Second:</label>
+        <input type="number" name="fps" id="fps" value="15" min="1" max="60">
+        <input type="number" name="bitrate" value="600" min="500" max="2000">
+        <button type="submit">Start Stream</button>
+    </form>
+
+    <form action="/stop_stream" method="post">
+        <button type="submit">Stop Stream</button>
+    </form>
+</body>
+</html>
