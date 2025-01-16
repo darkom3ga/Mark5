@@ -15,6 +15,7 @@
   <summary>Table of Contents</summary>
   <ol>
     <a href="#automating-the-running-of-the-rover">Automating the Working of the Rover</a>
+    <a href="#bashrc-setup">Bashrc Setup</a>
   </ol>
 </details>
 
