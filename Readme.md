@@ -46,7 +46,16 @@ This repo is for easy of run of the Kratos rover and make it more organised .
     ```sh
     ~/kratos
     ```
-    Type the Option and then hit Enter . Dont interefere / click while the automation is going one . It usually takes few second if the connections are ok . 
+    Type the Option and then hit Enter . Dont interefere / click while the automation is going one . It usually takes few second if the connections are ok .
+
+## Bashrc Setup 
+
+### In BaseStation
+
+    ```sh
+    export ROS_MASTER_URI=http://192.168.1.12:11311
+    export ROS_IP=192.168.1.11
+    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
