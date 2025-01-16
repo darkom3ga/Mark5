@@ -52,10 +52,10 @@ This repo is for easy of run of the Kratos rover and make it more organised .
 
 ### In BaseStation
 
-    ```sh
+  ```sh
     export ROS_MASTER_URI=http://192.168.1.12:11311
     export ROS_IP=192.168.1.11
-    ```
+  ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
