@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Stream</title>
+</head>
+<body>
+    <h1>Start Video Stream</h1>
+    <form action="/start_stream" method="post">
+        <label for="resolution">Select Resolution:</label>
+        <select name="resolution" id="resolution">
+            <option value="720p">720p</option>
+            <option value="480p" selected>480p</option>
+            <option value="360p">360p</option>
+            <option value="240p">240p</option>
+            <option value="144p">144p</option>  
+        </select>
+
+        <label for="fps">Frames per Second:</label>
+        <input type="number" name="fps" id="fps" value="15" min="1" max="60">
+        
+        <label for="bitrate">Bitrate:</label>
+        <input type="number" name="bitrate" value="1000" min="500" max="8000">
+        
+        <h3>Select Cameras to Stream:</h3>
+        {% if active_devices %}
+            {% for device in active_devices %}
+                <div>
+                    <input type="checkbox" name="devices" value="{{ device }}"> Camera: {{ device }}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No cameras found.</p>
+        {% endif %}
+
+        <button type="submit">Start Stream</button>
+    </form>
+
+    <form action="/stop_stream" method="post">
+        <h3>Select Streams to Stop:</h3>
+        {% if active_devices %}
+            {% for device in active_devices %}
+                <div>
+                    <input type="checkbox" name="device" value="{{ device }}">
+                    Camera: {{ device }}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No active streams to stop.</p>
+        {% endif %}
+    
+        <button type="submit">Stop Selected Streams</button>
+    </form>
+    
+</body>
+</html>
